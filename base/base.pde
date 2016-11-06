@@ -400,11 +400,31 @@ void FFT( Complex x[], int N )
     } 
 
     // YOUR CODE HERE
+    for (int inc=0; inc < N/2; inc += 2) {
+        Complex wInc = new Complex(
+                (float)Math.cos(PI / inc),
+                (float)((-1) * Math.sin( (-2) * PI / (2*inc) ))
+            );
+
+        for (int j = 0; j < N; j += 2 * inc) {
+            Complex w = new Complex(1,0);
+
+            for (int k = j; k < j + inc; k += 1) {
+                Complex t1 = w.mult( x[k+inc] ).add( x[k] );
+                Complex t2 = w.mult( x[k+inc] ).add( x[k] );
+
+                x[k]     = t1;
+                x[k+inc] = t2;
+
+                w = w.mult(wInc);
+            }
+        }
+    }
+
 }
 
 
 // 2D FFT of an NxN signal stored in x.
-//
 // x[] is a 1D array of N*N elements, which should be interpreted as a
 // 2D array of N rows and N columns.  The element at row r, column c
 // is x[c+r*N].
