@@ -377,6 +377,7 @@ float PI = 3.1415926;
 void FFT( Complex x[], int N )
 
 {
+    System.out.println("FFT");
     // bit-reverse the elements of x
     //
     // From unifft.c @ MIT
@@ -400,21 +401,19 @@ void FFT( Complex x[], int N )
     } 
 
     // YOUR CODE HERE
-    for (int inc=0; inc < N/2; inc += 2) {
+    for (int inc = 1; inc < N/2; inc *= 2) {
         Complex wInc = new Complex(
                 (float)Math.cos(PI / inc),
                 (float)((-1) * Math.sin( (-2) * PI / (2*inc) ))
-            );
-
-        for (int j = 0; j < N; j += 2 * inc) {
+        );
+        for (int i = 0; i < N; i += 2 * inc) {
             Complex w = new Complex(1,0);
+            for (int j = i; j < i + inc; j += 1) {
+                Complex t1 = w.mult( x[j+inc] ).add( x[j] );
+                Complex t2 = w.mult( x[j+inc] ).add( x[j] );
 
-            for (int k = j; k < j + inc; k += 1) {
-                Complex t1 = w.mult( x[k+inc] ).add( x[k] );
-                Complex t2 = w.mult( x[k+inc] ).add( x[k] );
-
-                x[k]     = t1;
-                x[k+inc] = t2;
+                x[j]     = t1;
+                x[j+inc] = t2;
 
                 w = w.mult(wInc);
             }
@@ -435,6 +434,7 @@ void FFT( Complex x[], int N )
 void FFT2D( Complex x[], int N )
 
 {
+    System.out.println("FFT2D");
     Complex[] signal = new Complex[N];
 
     // Compute FFTs of the rows
@@ -444,12 +444,42 @@ void FFT2D( Complex x[], int N )
 
     // YOUR CODE HERE
 
+    for (int r = 0; r < N; r++) {
+        // Copy each row of x into 1D signal
+        for (int c = 0; c < N; c++) {
+            signal[c] = x[c+r*N];
+        }
+
+        // Perform 1D FFT
+        FFT(signal, N);
+
+        // Copy transformed signal back to that row of x
+        for (int c = 0; c < N; c++) {
+            x[c+r*N] = signal[c];
+        }
+    }
+
     // Compute FFTs of the columns
     //
     // Copy each column of x into a 1D signal, perform the 1D FFT, then
     // copy the signal back to that column of x.
 
     // YOUR CODE HERE
+
+    for (int c = 0; c < N; c ++) {
+        // Copy each column of x into 1D signal
+        for (int r = 0; r < N; r ++) {
+            signal[r] = x[c+r*N];
+        }
+
+        // Perform 1D FFT
+        FFT(signal, N);
+
+        // Copy transformed signal back to that row of x
+        for (int r = 0; r < N; r ++) {
+            x[c+r*N] = signal[r];
+        }
+    }
 }
 
 
@@ -459,17 +489,30 @@ void FFT2D( Complex x[], int N )
 // N, frequencySignal, and spatialSignal are global variables.
 
 void forwardFFT2D()
-
 {
     // Copy spatialSignal into frequencySignal.  Both spatialSignal
     // and frequencySignal are 1D vectors of length NxN representing
     // an NxN image.  Apply transform to centre F.T. at (N/2,N/2).
 
     // YOUR CODE HERE
- 
+    System.out.println("forwardFFT2D");
+    for (int r = 0; r < N; r++) {
+        for (int c = 0; c < N; c++) {
+            // Copy spatialSignal into frequencySignal. Centre F.T at (N/2, N/2)
+            float realComponent = spatialSignal[c+r*N] * (float)Math.pow( (-1), c+r );
+            Complex fSignal = new Complex(
+                realComponent,
+                0
+            );
+
+            frequencySignal[c+r*N] = fSignal;
+        }
+    }
+
     // Apply 2D F.T. to frequencySignal
 
     // YOUR CODE HERE
+    FFT2D(frequencySignal, N);
 }
 
 
