@@ -27,7 +27,7 @@ int winHeight = 1024;           // window height
 int minLum = 16;                // min luminance (Y) value storable
 int maxLum = 235;               // max luminance (Y) value storable
 
-String imageFilename = "noisy1.jpg"; // current image file
+String imageFilename = "flower.jpg"; // current image file
 
 
 // Init
@@ -403,8 +403,8 @@ void FFT( Complex x[], int N )
     // YOUR CODE HERE
     for (int inc = 1; inc < N/2; inc *= 2) {
         Complex wInc = new Complex(
-                (float)Math.cos(PI / inc),
-                (float)((-1) * Math.sin( (-2) * PI / (2*inc) ))
+                (float)( Math.cos( (-1) * PI / inc ) ),
+                (float)( Math.sin( (-1) * PI / inc ) )
         );
         for (int i = 0; i < N; i += 2 * inc) {
             Complex w = new Complex(1,0);
@@ -498,16 +498,18 @@ void forwardFFT2D()
     System.out.println("forwardFFT2D");
     for (int r = 0; r < N; r++) {
         for (int c = 0; c < N; c++) {
+            
             // Copy spatialSignal into frequencySignal. Centre F.T at (N/2, N/2)
             float realComponent = spatialSignal[c+r*N] * (float)Math.pow( (-1), c+r );
+            
             Complex fSignal = new Complex(
                 realComponent,
                 0
             );
 
             frequencySignal[c+r*N] = fSignal;
-        }
-    }
+        } // end for columns
+    } // end for rows
 
     // Apply 2D F.T. to frequencySignal
 
@@ -528,14 +530,29 @@ void inverseFFT2D()
     // Form complex conjugate of frequencySignal
 
     // YOUR CODE HERE
+    Complex conjugate = new Complex(0, -1);
 
     // Apply 2D F.T.
 
     // YOUR CODE HERE
-
+    for (int r = 0; r < N; r++) {
+        for (int c = 0; c < N; c++) {
+            frequencySignal[c+r*N] = conjugate.mult(frequencySignal[c+r*N]);
+        }
+    }
+    FFT2D(frequencySignal,N);
+    
     // Copy into spatialSignal, normalizing and de-centring
 
     // YOUR CODE HERE
+    for (int r = 0; r < N; r++) {
+        for (int c = 0; c < N; c++) {
+            float normalized = (1/N) * frequencySignal[c+r*N].real;
+            float decentered = (float)(normalized * Math.pow( -1, r+c ));
+
+            spatialSignal[c+r*N] = decentered;
+        }
+    }
 }
 
 
