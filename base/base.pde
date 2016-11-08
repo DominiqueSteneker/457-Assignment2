@@ -36,7 +36,7 @@ String imageFilename = "flower.jpg"; // current image file
 void settings() {
 
     // Set up screen
-    
+
     size( winWidth, winHeight, P2D );
     smooth( 2 );
 }
@@ -83,9 +83,9 @@ void draw() {
         msg = msg + "  |  enhancement " + nf( logFactor, 0, 1 ) + "  |  ";
 
         switch (filterType) {
-        case 0: msg = msg + "Gaussian filter"; break;
-        case 1: msg = msg + "Butterworth filter"; break;
-        case 2: msg = msg + "box filter"; break;
+            case 0: msg = msg + "Gaussian filter"; break;
+            case 1: msg = msg + "Butterworth filter"; break;
+            case 2: msg = msg + "box filter"; break;
         }
 
         msg = msg + ", radius " + nf( filterRadius, 0, 1 );
@@ -101,22 +101,22 @@ void draw() {
     stroke( 255 );
     text( msg, 10, winHeight-10 );
 }
- 
+
 
 // Handle a key press
 
 void keyPressed() {
     switch (key) {
 
-    case CODED:
+        case CODED:
         switch (keyCode) {
-        case RIGHT:
+            case RIGHT:
             println( "starting forward FFT" );
             forwardFFT2D();
             showSpectrumImage();
             println( "done forward FFT" );
             break;
-        case LEFT:
+            case LEFT:
             println( "starting inverse FFT" );
             inverseFFT2D();
             showSpatialImage();
@@ -125,42 +125,42 @@ void keyPressed() {
         }
         break;
 
-    case 'b':
+        case 'b':
         filterType = (filterType+1) % 3;
         break;
         
-    case 'i':
+        case 'i':
         selectInput( "Select an image", "readNewImage", new File(dataPath("data")) );
         break;
 
-    case '-':
-    case '_':
+        case '-':
+        case '_':
         logFactor /= 1.2;
         showSpectrumImage();
         break;
-    case '+':
-    case '=':
+        case '+':
+        case '=':
         logFactor *= 1.2;
         showSpectrumImage();
         break;
 
-    case '>':
-    case '.':
+        case '>':
+        case '.':
         filterRadius *= 1.2;
         break;
-    case '<':
-    case ',':
+        case '<':
+        case ',':
         filterRadius /= 1.2;
         break;
 
-    case 'f':
+        case 'f':
         showSpatialImage();
         break;
-    case 'F':
+        case 'F':
         showSpectrumImage();
         break;
 
-    case '?':
+        case '?':
         println( " i   get image from file" );
         println( "-->  compute forward Fourier transform" );
         println( "<--  compute inverse Fourier transform" );
@@ -195,7 +195,7 @@ void mouseClicked()
 // in the spatialSignal array.
 
 void readImage() {
-    
+
     img = loadImage( imageFilename );
 
     // Find dimensions that are the smallest powers of two at least as
@@ -300,7 +300,7 @@ color RGB2YCrCb( color rgb ) {
 color YCrCb2RGB( color ycrcb ) {
 
     // Get YCrCb components in [0,255]x[0,255]x[0,255]
-    
+
     float y  = red(   ycrcb );
     float cr = green( ycrcb );
     float cb = blue(  ycrcb );
@@ -353,7 +353,7 @@ class Complex {
 // From unifft.c @ MIT
 
 int bitrev( int inp, int numbits )
-    
+
 {
     int rev = 0;
     
@@ -375,9 +375,7 @@ float PI = 3.1415926;
 
 
 void FFT( Complex x[], int N )
-
 {
-    System.out.println("FFT");
     // bit-reverse the elements of x
     //
     // From unifft.c @ MIT
@@ -403,12 +401,12 @@ void FFT( Complex x[], int N )
     // YOUR CODE HERE
     for (int inc = 1; inc < N/2; inc *= 2) {
         Complex wInc = new Complex(
-                (float)( Math.cos( (-1) * PI / inc ) ),
-                (float)( Math.sin( (-1) * PI / inc ) )
+            cos( (-1.0) * PI / inc ),
+            sin( (-1.0) * PI / inc )
         );
         for (int i = 0; i < N; i += 2 * inc) {
             Complex w = new Complex(1,0);
-            for (int j = i; j < i + inc; j += 1) {
+            for (int j = i; j < i + inc; j ++) {
                 Complex t1 = w.mult( x[j+inc] ).add( x[j] );
                 Complex t2 = w.mult( x[j+inc] ).add( x[j] );
 
@@ -419,7 +417,6 @@ void FFT( Complex x[], int N )
             }
         }
     }
-
 }
 
 
@@ -475,7 +472,7 @@ void FFT2D( Complex x[], int N )
         // Perform 1D FFT
         FFT(signal, N);
 
-        // Copy transformed signal back to that row of x
+        // Copy transformed signal back to that column of x
         for (int r = 0; r < N; r ++) {
             x[c+r*N] = signal[r];
         }
@@ -498,16 +495,11 @@ void forwardFFT2D()
     System.out.println("forwardFFT2D");
     for (int r = 0; r < N; r++) {
         for (int c = 0; c < N; c++) {
-            
             // Copy spatialSignal into frequencySignal. Centre F.T at (N/2, N/2)
-            float realComponent = spatialSignal[c+r*N] * (float)Math.pow( (-1), c+r );
-            
-            Complex fSignal = new Complex(
-                realComponent,
+            frequencySignal[c+r*N] = new Complex(
+                spatialSignal[c+r*N] * pow( (-1), c+r ),
                 0
-            );
-
-            frequencySignal[c+r*N] = fSignal;
+                );
         } // end for columns
     } // end for rows
 
@@ -525,30 +517,34 @@ void forwardFFT2D()
 // Use the complex conjugate to leverage the existing FFT2D routine.
 
 void inverseFFT2D()
-
 {
     // Form complex conjugate of frequencySignal
 
     // YOUR CODE HERE
-    Complex conjugate = new Complex(0, -1);
+    Complex[] conjugate = new Complex[N*N];
+
+    for (int r = 0; r < N; r++) {
+        for (int c = 0; c < N; c++) {
+            // Form compelx conjugate of frequencySignal
+            conjugate[c+r*N] = new Complex(
+                frequencySignal[c+r*N].real,
+                (-1) * frequencySignal[c+r*N].imag
+            );
+        }
+    }
 
     // Apply 2D F.T.
 
     // YOUR CODE HERE
-    for (int r = 0; r < N; r++) {
-        for (int c = 0; c < N; c++) {
-            frequencySignal[c+r*N] = conjugate.mult(frequencySignal[c+r*N]);
-        }
-    }
-    FFT2D(frequencySignal,N);
+    FFT2D(conjugate,N);
     
     // Copy into spatialSignal, normalizing and de-centring
 
     // YOUR CODE HERE
     for (int r = 0; r < N; r++) {
         for (int c = 0; c < N; c++) {
-            float normalized = (1/N) * frequencySignal[c+r*N].real;
-            float decentered = (float)(normalized * Math.pow( -1, r+c ));
+            float normalized = (1.0/(N*N)) * conjugate[c+r*N].real;
+            float decentered = normalized * pow( (-1) , r+c );
 
             spatialSignal[c+r*N] = decentered;
         }
@@ -569,7 +565,7 @@ void showSpectrumImage()
     while (i < N*N/2) {
         Complex c = frequencySignal[i];
         float val = sqrt( c.real * c.real +
-                              c.imag * c.imag );
+          c.imag * c.imag );
         magnitudes[i] = val;
         i++;
     }
@@ -578,7 +574,7 @@ void showSpectrumImage()
 
     while (i < N*N) {
         magnitudes[i] = sqrt( frequencySignal[i].real * frequencySignal[i].real +
-                              frequencySignal[i].imag * frequencySignal[i].imag );
+          frequencySignal[i].imag * frequencySignal[i].imag );
         i++;
     }
 
@@ -590,21 +586,21 @@ void showSpectrumImage()
         if (magnitudes[i] > max)
             max = magnitudes[i];
 
-    magnitudes[N*N/2] = max;
+        magnitudes[N*N/2] = max;
 
     // Render spectrum to outputImage
 
-    outputImage.loadPixels();
+        outputImage.loadPixels();
 
-    for (i=0; i<N*N; i++) {
-        int mag = round( 255 * log( logFactor * magnitudes[i]/max + 1 ) / log( logFactor + 1 ));
-        outputImage.pixels[i] = color( mag, mag, mag );
+        for (i=0; i<N*N; i++) {
+            int mag = round( 255 * log( logFactor * magnitudes[i]/max + 1 ) / log( logFactor + 1 ));
+            outputImage.pixels[i] = color( mag, mag, mag );
+        }
+
+        outputImage.updatePixels();
+
+        showingFT = true;
     }
-
-    outputImage.updatePixels();
-
-    showingFT = true;
-}
 
 
 
@@ -612,23 +608,23 @@ void showSpectrumImage()
 //
 // Have to modulate the original intensities with those from the F.T.
 
-void showSpatialImage()
+    void showSpatialImage()
 
-{
+    {
     // Render original image, with intensities in spatialSignal
 
-    outputImage.loadPixels();
-    img.loadPixels();
+        outputImage.loadPixels();
+        img.loadPixels();
 
-    for (int i=0; i<N*N; i++) {
-        color ycrcb = RGB2YCrCb( img.pixels[i] );
-        outputImage.pixels[i] = YCrCb2RGB( color( spatialSignal[i] * (maxLum-minLum) + minLum, green(ycrcb), blue(ycrcb) ) );
+        for (int i=0; i<N*N; i++) {
+            color ycrcb = RGB2YCrCb( img.pixels[i] );
+            outputImage.pixels[i] = YCrCb2RGB( color( spatialSignal[i] * (maxLum-minLum) + minLum, green(ycrcb), blue(ycrcb) ) );
+        }
+
+        outputImage.updatePixels();
+
+        showingFT = false;
     }
-
-    outputImage.updatePixels();
-
-    showingFT = false;
-}
 
 
 
@@ -639,19 +635,19 @@ void showSpatialImage()
 //   filterRadius
 //   filterType:  0 = Gaussian, 1 = Butterworth, 2 = box
 
-void applyBlurFilter()
+    void applyBlurFilter()
 
-{
-    for (int r=-round(filterRadius); r<round(filterRadius); r++)
-        for (int c=-round(filterRadius); c<round(filterRadius); c++) {
+    {
+        for (int r=-round(filterRadius); r<round(filterRadius); r++)
+            for (int c=-round(filterRadius); c<round(filterRadius); c++) {
 
             // Find offset from F.T. center, which is at (N/2,N/2)
 
-            int x = c+mouseX-N/2;
-            int y = r+mouseY-N/2;
-            
+                int x = c+mouseX-N/2;
+                int y = r+mouseY-N/2;
+
             if (x>-N/2 && x<N/2 && y>-N/2 && y<N/2) { // inside array?
-                
+
                 float dist = sqrt(r*r+c*c)/filterRadius;
                 
                 if (dist <= 1) { // inside filter radius?
@@ -673,16 +669,16 @@ void applyBlurFilter()
                             float weight;
 
                             switch (filterType) {
-                            case 0:
+                                case 0:
                                 weight = exp(-4*dist*dist); // Gaussian
                                 break;
-                            case 1:
+                                case 1:
                                 weight = 1.0 / pow(1.0 + dist, 2*2); // Butterworth
                                 break;
-                            case 2:
+                                case 2:
                                 weight = 1; // box
                                 break;
-                            default:
+                                default:
                                 weight = 0;
                                 break;
                             }
@@ -693,7 +689,7 @@ void applyBlurFilter()
 
                             frequencySignal[(N/2 + i*x) + N*(N/2 + j*y)] = new Complex( mag * cos(phase), mag * sin(phase) );
                         }
+                    }
                 }
             }
         }
-}
