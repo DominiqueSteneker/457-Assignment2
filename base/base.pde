@@ -407,8 +407,9 @@ void FFT( Complex x[], int N )
         for (int i = 0; i < N; i += 2 * inc) {
             Complex w = new Complex(1,0);
             for (int j = i; j < i + inc; j ++) {
-                Complex t1 = w.mult( x[j+inc] ).add( x[j] );
-                Complex t2 = w.mult( x[j+inc] ).add( x[j] );
+
+                Complex t1 = w.add( x[j] ).mult( x[j+inc] );
+                Complex t2 = w.add( x[j] ).mult( x[j+inc] );
 
                 x[j]     = t1;
                 x[j+inc] = t2;
