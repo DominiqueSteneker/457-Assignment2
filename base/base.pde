@@ -27,7 +27,7 @@ int winHeight = 1024;           // window height
 int minLum = 16;                // min luminance (Y) value storable
 int maxLum = 235;               // max luminance (Y) value storable
 
-String imageFilename = "noisy1.jpg"; // current image file
+String imageFilename = "noisy2.png"; // current image file
 
 
 // Init
@@ -406,8 +406,8 @@ void FFT( Complex x[], int N )
             Complex w = new Complex(1,0);
             for (int j = i; j < i + inc; j ++) {
 
-                Complex t1 = w.add( x[j] ).mult( x[j+inc] );
-                Complex t2 = w.add( x[j] ).mult( x[j+inc] );
+                Complex t1 = x[j].add( w.mult( x[j+inc] ));
+                Complex t2 = x[j].subtract( w.mult( x[j+inc] ));
 
                 x[j]     = t1;
                 x[j+inc] = t2;
@@ -540,7 +540,6 @@ void inverseFFT2D()
     // YOUR CODE HERE
     for (int r = 0; r < N; r++) {
         for (int c = 0; c < N; c++) {
-            System.out.println(conjugate[c+r*N].imag);
             float normalized = 1.0 / (N*N) * conjugate[c+r*N].real;
             float decentered = pow( (-1) , r+c ) * normalized;
 
