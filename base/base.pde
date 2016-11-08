@@ -27,7 +27,7 @@ int winHeight = 1024;           // window height
 int minLum = 16;                // min luminance (Y) value storable
 int maxLum = 235;               // max luminance (Y) value storable
 
-String imageFilename = "flower.jpg"; // current image file
+String imageFilename = "noisy1.jpg"; // current image file
 
 
 // Init
@@ -181,7 +181,6 @@ void keyPressed() {
 
 
 void mouseClicked()
-
 {
     if (showingFT) {
         applyBlurFilter();
@@ -353,7 +352,6 @@ class Complex {
 // From unifft.c @ MIT
 
 int bitrev( int inp, int numbits )
-
 {
     int rev = 0;
     
@@ -399,10 +397,10 @@ void FFT( Complex x[], int N )
     } 
 
     // YOUR CODE HERE
-    for (int inc = 1; inc < N/2; inc *= 2) {
+    for (int inc = 1; inc <= N/2; inc *= 2) {
         Complex wInc = new Complex(
-            cos( (-1.0) * PI / inc ),
-            sin( (-1.0) * PI / inc )
+            cos((-1.0) * PI / inc ),
+            sin((-1.0) * PI / inc )
         );
         for (int i = 0; i < N; i += 2 * inc) {
             Complex w = new Complex(1,0);
@@ -430,9 +428,7 @@ void FFT( Complex x[], int N )
 
 
 void FFT2D( Complex x[], int N )
-
 {
-    System.out.println("FFT2D");
     Complex[] signal = new Complex[N];
 
     // Compute FFTs of the rows
@@ -498,9 +494,9 @@ void forwardFFT2D()
         for (int c = 0; c < N; c++) {
             // Copy spatialSignal into frequencySignal. Centre F.T at (N/2, N/2)
             frequencySignal[c+r*N] = new Complex(
-                spatialSignal[c+r*N] * pow( (-1), c+r ),
-                0
-                );
+                pow( (-1), c+r ) * spatialSignal[c+r*N],
+                0.0
+            );
         } // end for columns
     } // end for rows
 
@@ -530,7 +526,7 @@ void inverseFFT2D()
             conjugate[c+r*N] = new Complex(
                 frequencySignal[c+r*N].real,
                 (-1) * frequencySignal[c+r*N].imag
-            );
+                );
         }
     }
 
@@ -544,8 +540,9 @@ void inverseFFT2D()
     // YOUR CODE HERE
     for (int r = 0; r < N; r++) {
         for (int c = 0; c < N; c++) {
-            float normalized = (1.0/(N*N)) * conjugate[c+r*N].real;
-            float decentered = normalized * pow( (-1) , r+c );
+            System.out.println(conjugate[c+r*N].imag);
+            float normalized = 1.0 / (N*N) * conjugate[c+r*N].real;
+            float decentered = pow( (-1) , r+c ) * normalized;
 
             spatialSignal[c+r*N] = decentered;
         }
@@ -556,7 +553,6 @@ void inverseFFT2D()
 // Draw the FFT spectrum in outputImage
 
 void showSpectrumImage()
-
 {
     // Gather F.T. magnitudes in an array and find max (excluding DC component)
 
@@ -608,7 +604,6 @@ void showSpectrumImage()
 // Draw the spatial image
 //
 // Have to modulate the original intensities with those from the F.T.
-
     void showSpatialImage()
 
     {
@@ -635,9 +630,7 @@ void showSpectrumImage()
 //
 //   filterRadius
 //   filterType:  0 = Gaussian, 1 = Butterworth, 2 = box
-
     void applyBlurFilter()
-
     {
         for (int r=-round(filterRadius); r<round(filterRadius); r++)
             for (int c=-round(filterRadius); c<round(filterRadius); c++) {
