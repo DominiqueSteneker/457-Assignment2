@@ -27,7 +27,7 @@ int winHeight = 1024;           // window height
 int minLum = 16;                // min luminance (Y) value storable
 int maxLum = 235;               // max luminance (Y) value storable
 
-String imageFilename = "noisy2.png"; // current image file
+String imageFilename = "noisy3.png"; // current image file
 
 
 // Init
@@ -489,7 +489,6 @@ void forwardFFT2D()
     // an NxN image.  Apply transform to centre F.T. at (N/2,N/2).
 
     // YOUR CODE HERE
-    System.out.println("forwardFFT2D");
     for (int r = 0; r < N; r++) {
         for (int c = 0; c < N; c++) {
             // Copy spatialSignal into frequencySignal. Centre F.T at (N/2, N/2)
